@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class OtpController extends Controller
 {
@@ -186,12 +187,18 @@ class OtpController extends Controller
                 }
             );
 
-        } catch (\Throwable $e) {
+                } catch (\Throwable $e) {
 
-            report($e);
+            Log::error('OTP EMAIL SENDING FAILED', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'exception' => get_class($e),
+                'message' => $e->getMessage(),
+            ]);
 
             return back()->withErrors([
-                'otp' => 'Unable to send OTP email. Please check your mail configuration and try again.'
+                'otp' => 'Unable to send OTP email. Error: '
+                    . $e->getMessage()
             ]);
         }
 
